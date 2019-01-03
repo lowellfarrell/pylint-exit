@@ -14,7 +14,7 @@ __uri__ = "https://github.com/jongracecox/pylint-exit"
 
 EXIT_CODES_LIST = [
     (1, 'fatal message issued', 1),
-    (2, 'error message issued', 0),
+    (2, 'error message issued', 1),
     (4, 'warning message issued', 0),
     (8, 'refactor message issued', 0),
     (16, 'convention message issued', 0),
