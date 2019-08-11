@@ -1,6 +1,5 @@
-# pylint-exit
+# pylint-exit-options
 
-![image](https://travis-ci.org/jongracecox/pylint-exit.svg?branch=master)
 
 Utility to handle pylint exit codes on Linux in a scripting-friendly way.
 
@@ -105,3 +104,8 @@ issued message, and return the maximum final return code.
 | 32 | Usage error | 1 |
 
 This list is stored in `EXIT_CODES_LIST`, which can be customised if needed.
+
+
+# Credit
+Forked from: https://github.com/jongracecox/pylint-exit and https://github.com/theunkn0wn1/pylint-exit
+
