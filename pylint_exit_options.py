@@ -1,4 +1,7 @@
 #!/usr/local/bin/python3
+"""
+The goal of this script to add a level of customizability to exit handling for pylint
+"""
 from __future__ import print_function
 
 import argparse
@@ -12,7 +15,7 @@ __title__ = "pylint_exit_options"
 __summary__ = "Exit code handler for pylint command line utility."
 __uri__ = "https://github.com/lowellfarrell/pylint-exit-options"
 
-exit_code_list = [
+EXIT_CODE_DFAULTS = [
     (1, 'fatal message issued', 1),
     (2, 'error message issued', 2),
     (4, 'warning message issued', 4),
@@ -40,7 +43,7 @@ def decode(value):
         >>> decode(3)
         [(1, 'fatal message issued', 1), (2, 'error message issued', 0)]
     """
-    return [x[1] for x in zip(bitarray(bin(value)[2:])[::-1], exit_code_list) if x[0]]
+    return [x[1] for x in zip(bitarray(bin(value)[2:])[::-1], EXIT_CODE_DFAULTS) if x[0]]
 
 
 def get_messages(value):
@@ -87,8 +90,7 @@ def get_exit_code(value):
     exit_codes = [x[2] for x in decode(value)]
     if not exit_codes:
         return 0
-    else:
-        return sum(exit_codes)
+    return sum(exit_codes)
 
 
 def show_workings(value):
@@ -105,7 +107,7 @@ def show_workings(value):
         12 (1100) = ['warning message issued', 'refactor message issued']
     """
     print("%s (%s) = %s" %
-          (value, bin(value)[2:], [x[1][1] for x in zip(bitarray(bin(value)[2:])[::-1], exit_code_list) if x[0]]))
+          (value, bin(value)[2:], [x[1][1] for x in zip(bitarray(bin(value)[2:])[::-1], EXIT_CODE_DFAULTS) if x[0]]))
 
 
 def handle_exit_code(value):
@@ -142,7 +144,7 @@ def handle_exit_code(value):
     exit_code = get_exit_code(value)
 
     if messages:
-        print("The following types of issues were found:")
+        print('The following types of issues were found:')
         print('')
 
         for message in messages:
@@ -151,7 +153,7 @@ def handle_exit_code(value):
         print('')
 
     if exit_code:
-        print("The following types of issues are blocker:")
+        print('The following types of issues are blocker:')
         print('')
 
         exit_messages = get_messages(exit_code)
@@ -161,7 +163,7 @@ def handle_exit_code(value):
         print('')
         print('Exiting with issues...')
     else:
-        print("Exiting gracefully...")
+        print('Exiting gracefully...')
 
     return exit_code
 
@@ -209,11 +211,11 @@ def apply_enforcement_setting(key, value):
     position = positions[key]
 
     # unpack the tuple so it can be modified
-    encoded, description, enforce = exit_code_list[position]
+    encoded, description, enforce = EXIT_CODE_DFAULTS[position]
     enforce = value  # set the element to True (error)
 
     # repack it back into a tuple to match existing data type
-    exit_code_list[position] = encoded, description, enforce
+    EXIT_CODE_DFAULTS[position] = encoded, description, enforce
 
 
 def handle_cli_flags(namespace):
