@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/local/bin/python3
 from __future__ import print_function
 
 import argparse
@@ -7,20 +7,19 @@ import sys
 from bitarray import bitarray
 
 # Package information
-version = __version__ = "0.1.0rc1"
-__title__ = "pylint_exit"
+VERSION = __version__ = "0.1.1rc1"
+__title__ = "pylint_exit_options"
 __summary__ = "Exit code handler for pylint command line utility."
-__uri__ = "https://github.com/jongracecox/pylint-exit"
-
+__uri__ = "https://github.com/lowellfarrell/pylint-exit-options"
 
 exit_code_list = [
     (1, 'fatal message issued', 1),
-    (2, 'error message issued', 1),
-    (4, 'warning message issued', 0),
+    (2, 'error message issued', 2),
+    (4, 'warning message issued', 4),
     (8, 'refactor message issued', 0),
     (16, 'convention message issued', 0),
-    (32, 'usage error', 1)
-    ]
+    (32, 'usage error', 32)
+]
 
 
 def decode(value):
@@ -79,17 +78,17 @@ def get_exit_code(value):
         >>> get_exit_code(1)
         1
         >>> get_exit_code(2)
-        0
+        2
         >>> get_exit_code(3)
-        1
+        3
         >>> get_exit_code(12)
-        0
+        4
     """
     exit_codes = [x[2] for x in decode(value)]
     if not exit_codes:
         return 0
     else:
-        return max(exit_codes)
+        return sum(exit_codes)
 
 
 def show_workings(value):
@@ -143,27 +142,28 @@ def handle_exit_code(value):
     exit_code = get_exit_code(value)
 
     if messages:
-        print("The following messages were raised:")
+        print("The following types of issues were found:")
         print('')
 
-    for m in messages:
-        print("  - %s" % m)
+        for message in messages:
+            print("  - %s" % message)
 
-    if messages:
         print('')
 
     if exit_code:
-        print("Fatal messages detected.  Failing...")
+        print("The following types of issues are blocker:")
+        print('')
+
+        exit_messages = get_messages(exit_code)
+        for exit_message in exit_messages:
+            print("  - %s" % exit_message)
+
+        print('')
+        print('Exiting with issues...')
     else:
-        print("No fatal messages detected.  Exiting gracefully...")
+        print("Exiting gracefully...")
 
     return exit_code
-
-
-def test():
-    # Test function
-    import doctest
-    doctest.testmod()
 
 
 def parse_args():
@@ -197,15 +197,16 @@ def apply_enforcement_setting(key, value):
         value (int): new value for level
 
     """
-    POSITIONS = {
+    positions = {
         "fatal": 0,
         "error": 1,
         "warning": 2,
         "refactor": 3,
-        "convention": 4
+        "convention": 4,
+        "usage": 5
     }
     # fetch the position from the dict
-    position = POSITIONS[key]
+    position = positions[key]
 
     # unpack the tuple so it can be modified
     encoded, description, enforce = exit_code_list[position]
@@ -223,14 +224,6 @@ def handle_cli_flags(namespace):
         namespace (argparse.Namespace): namespace from CLI arguments
 
     """
-    # [
-    #   (1, 'fatal message issued', 1),
-    #   (2, 'error message issued', 0),
-    #   (4, 'warning message issued', 0),
-    #   (8, 'refactor message issued', 0),
-    #   (16, 'convention message issued', 0),
-    #   (32, 'usage error', 1)
-    # ]
     if namespace.error_fail:  # fail on errors
         apply_enforcement_setting("error", 1)
 
@@ -246,6 +239,7 @@ def handle_cli_flags(namespace):
 
 
 def main():
+    """ main function """
     args = parse_args()
     handle_cli_flags(args)
     exit_code = handle_exit_code(args.pylint_exit_code)
