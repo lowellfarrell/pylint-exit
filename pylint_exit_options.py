@@ -11,17 +11,24 @@ from bitarray import bitarray
 
 # Package information
 VERSION = __version__ = "0.1.1rc1"
+__FATAL__ = 1
+__ERROR__ = 2
+__WARNING__ = 4
+__REFACTOR__ = 8
+__CONVENTION__ = 16
+__USAGE__ = 32
+__SUPPRESS__ = 0
 __title__ = "pylint_exit_options"
 __summary__ = "Exit code handler for pylint command line utility."
 __uri__ = "https://github.com/lowellfarrell/pylint-exit-options"
 
-EXIT_CODE_DFAULTS = [
-    (1, 'fatal message issued', 1),
-    (2, 'error message issued', 2),
-    (4, 'warning message issued', 4),
-    (8, 'refactor message issued', 0),
-    (16, 'convention message issued', 0),
-    (32, 'usage error', 32)
+EXIT_CODE_DEFAULTS = [
+    (__FATAL__, 'fatal message issued', __FATAL__),
+    (__ERROR__, 'error message issued', __ERROR__),
+    (__WARNING__, 'warning message issued', __WARNING__),
+    (__REFACTOR__, 'refactor message issued', __SUPPRESS__),
+    (__CONVENTION__, 'convention message issued', __SUPPRESS__),
+    (__USAGE__, 'usage error', __USAGE__)
 ]
 
 
@@ -43,7 +50,7 @@ def decode(value):
         >>> decode(3)
         [(1, 'fatal message issued', 1), (2, 'error message issued', 0)]
     """
-    return [x[1] for x in zip(bitarray(bin(value)[2:])[::-1], EXIT_CODE_DFAULTS) if x[0]]
+    return [x[1] for x in zip(bitarray(bin(value)[2:])[::-1], EXIT_CODE_DEFAULTS) if x[0]]
 
 
 def get_messages(value):
@@ -107,7 +114,7 @@ def show_workings(value):
         12 (1100) = ['warning message issued', 'refactor message issued']
     """
     print("%s (%s) = %s" %
-          (value, bin(value)[2:], [x[1][1] for x in zip(bitarray(bin(value)[2:])[::-1], EXIT_CODE_DFAULTS) if x[0]]))
+          (value, bin(value)[2:], [x[1][1] for x in zip(bitarray(bin(value)[2:])[::-1], EXIT_CODE_DEFAULTS) if x[0]]))
 
 
 def handle_exit_code(value):
@@ -174,18 +181,12 @@ def parse_args():
 
     parser.add_argument('pylint_exit_code', metavar='PYLINTRC', type=int,
                         help='pylint return code')
-
-    parser.add_argument('-efail', '--error-fail', action='store_true',
-                        help='Fail on issued error messages')
-
-    parser.add_argument('-wfail', '--warn-fail', action='store_true',
-                        help='fail on issued warnings messages')
-
-    parser.add_argument('-rfail', '--refactor-fail', action='store_true',
-                        help='fail on issued refactor messages')
-
-    parser.add_argument('-cfail', '--convention-fail', action='store_true',
-                        help='fail on issued convention messages')
+    suppress_exit_code_help = 'You can choose which issue codes are part of the exit code with this option.  ' \
+                              'Acceptable values are : F[Fatal], E[Error], W[Warning], R[Refactor], C[Convention],' \
+                              ' U[Usage]. Examples:   "-r=R" will report only Refactor type error codes, "-r=R,C" ' \
+                              'will report only Refactor and Convention type error codes.  By default' \
+                              ' Fatal, Error, Warning and Usage type error codes are reported'
+    parser.add_argument('--exit-report', metavar='<F,E,W,R,C,U>', default='F,E,W,U', help=suppress_exit_code_help)
 
     return parser.parse_args()
 
@@ -195,27 +196,27 @@ def apply_enforcement_setting(key, value):
     Apply an enforcement setting
 
     Args:
-        key (str): specific message level to set
+        key (int): specific message level to set
         value (int): new value for level
 
     """
     positions = {
-        "fatal": 0,
-        "error": 1,
-        "warning": 2,
-        "refactor": 3,
-        "convention": 4,
-        "usage": 5
+        __FATAL__: 0,
+        __ERROR__: 1,
+        __WARNING__: 2,
+        __REFACTOR__: 3,
+        __CONVENTION__: 4,
+        __USAGE__: 5
     }
     # fetch the position from the dict
     position = positions[key]
 
     # unpack the tuple so it can be modified
-    encoded, description, enforce = EXIT_CODE_DFAULTS[position]
+    encoded, description, enforce = EXIT_CODE_DEFAULTS[position]
     enforce = value  # set the element to True (error)
 
     # repack it back into a tuple to match existing data type
-    EXIT_CODE_DFAULTS[position] = encoded, description, enforce
+    EXIT_CODE_DEFAULTS[position] = encoded, description, enforce
 
 
 def handle_cli_flags(namespace):
@@ -226,18 +227,36 @@ def handle_cli_flags(namespace):
         namespace (argparse.Namespace): namespace from CLI arguments
 
     """
-    if namespace.error_fail:  # fail on errors
-        apply_enforcement_setting("error", 1)
+    if namespace.exit_report:
+        arg_value_list = namespace.exit_report.split(',')
+        _set_report_arg_values(arg_value_list)
 
-    if namespace.warn_fail:
-        apply_enforcement_setting("warning", 1)
 
-    if namespace.refactor_fail:
-        apply_enforcement_setting("refactor", 1)
-
-    if namespace.convention_fail:
-        # error on conventions
-        apply_enforcement_setting("convention", 1)
+def _set_report_arg_values(arg_values: []):
+    if 'F' in arg_values:
+        apply_enforcement_setting(__FATAL__, __FATAL__)
+    else:
+        apply_enforcement_setting(__FATAL__, __SUPPRESS__)
+    if 'E' in arg_values:
+        apply_enforcement_setting(__ERROR__, __ERROR__)
+    else:
+        apply_enforcement_setting(__ERROR__, __SUPPRESS__)
+    if 'W' in arg_values:
+        apply_enforcement_setting(__WARNING__, __WARNING__)
+    else:
+        apply_enforcement_setting(__WARNING__, __SUPPRESS__)
+    if 'R' in arg_values:
+        apply_enforcement_setting(__REFACTOR__, __REFACTOR__)
+    else:
+        apply_enforcement_setting(__REFACTOR__, __SUPPRESS__)
+    if 'C' in arg_values:
+        apply_enforcement_setting(__CONVENTION__, __CONVENTION__)
+    else:
+        apply_enforcement_setting(__CONVENTION__, __SUPPRESS__)
+    if 'U' in arg_values:
+        apply_enforcement_setting(__USAGE__, __USAGE__)
+    else:
+        apply_enforcement_setting(__USAGE__, __SUPPRESS__)
 
 
 def main():
