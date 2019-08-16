@@ -23,7 +23,7 @@ setup(
     long_description=rst_readme,
     version=mister_bump.bump(style='rc'),
     author='Lowell-Farrell',
-    author_email='',
+    author_email='lff.dev19@gmail.com',
     py_modules=['pylint_exit_options'],
     setup_requires=['setuptools', 'wheel', 'm2r'],
     tests_require=[],
