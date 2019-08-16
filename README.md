@@ -1,22 +1,8 @@
 # pylint-exit-options
 
-
-Utility to handle pylint exit codes on Linux in a scripting-friendly way.
-
-Pylint uses bit-encoded exit codes to convey the results of the pylint review,
-which means it will return with a non-zero return code even when the
-pylint scoring was successful.
-
-This can make it difficult to script the execution of pylint while at the same time
-detecting genuine errors.
-
-`pylint-exit-options` is a small command-line utility that can be used to re-process
-the pylint return code and translate it into a scripting-friendly return code.
-
-`pylint-exit-options` will decode the bit-encoded return code, identify whether there were
-any fatal messages issued (which might constitute a failure in the execution of
-pylint), or a usage error, and return a `0` or `1` return code that is more easily
-used in shell scripts.
+`pylint-exit-options` is a small command-line tool that can be used to re-processthe `pylint` exit codes.  The tool 
+will parse the bit-encoded exit code and allow you to customize which issue types will equate to a non-zero exit 
+code.  Then a new exit code will be return that is a sum of the customized exit settings.
 
 # Installation
 
@@ -38,7 +24,7 @@ environment variable, otherwise the command line `pylint-exit-options` will not 
 
 # Usage
 Add `|| pylint-exit-options $?` to the end of your existing Pylint command.  You can then
-use the updated `$?` return code in your shell script.
+use the updated `$?` exit code in your shell script.
 
 ```bash
 pylint mymodule.py || pylint-exit-options $?
@@ -56,8 +42,8 @@ usage: "-r=R" will report only Refactor type error codes, "-r=R,C" will report o
 type error codes. By default Fatal, Error, Warning and Usage type error codes are reported
 
 # Example
-In this example pylint detects convention issue(s), and exits with a return code of 16.  `pylint-exit-options` 
-decodes this, displays the messages, and exits with a return code of 0.
+In this example pylint detects convention issue(s), and exits with a exit code of 16.  `pylint-exit-options` 
+decodes this, lists the `pylint` issue message type, and exits with a new exit code. In this case the new exit code is 0.
 
 ```bash
 > pylint pylint-exit-options.py || pylint-exit-options $?
@@ -68,6 +54,7 @@ Your code has been rated at 9.89/10 (previous run: 9.89/10, +0.00)
 
 The following types of issues were found:
 
+  - refactor message issued
   - convention message issued
 
 Exiting gracefully...
@@ -76,8 +63,10 @@ Exiting gracefully...
 0
 ```
 
-In this example pylint detects convention issue(s), and exits with a return code of 16.  `pylint-exit-options` 
-decodes this, displays the messages, and exits with a return code of 16.
+In this example pylint detects refactor an convention issue(s), and exits with a exit code of 24.  `pylint-exit-options` 
+decodes this, lists the `pylint` issue message types, lists the message types that have non-zere issue cods for 
+`pylint-exit-options` and exits with a new exit code. In this case the new exit code is 16.
+
 ```bash
 > pylint pylint-exit-options.py || pylint-exit-options --exit-report=C $?
 ************* Module pylint-exit-options
@@ -88,6 +77,7 @@ Your code has been rated at 9.89/10 (previous run: 9.89/10, +0.00)
 
 The following types of issues were found:
 
+  - refactor message issued
   - convention message issued
 
 The following types of issues are blocking:
@@ -101,8 +91,8 @@ Exiting due to issues...
 ```
 
 # Default issue code convertions
-Pylint can return combinations of the following codes.  `pylint-exit-options` will identify each
-issued message, and return the bit wise sum of the issue codes as a final return code.
+`pylint` can return combinations of the following codes.  `pylint-exit-options` will identify each
+issued message, and return the bit wise sum of the issue codes as a final exit code.
 
 | Pylint code | Message | Final return code |
 | ----------- | ------- | ----------------- |
