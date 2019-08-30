@@ -10,7 +10,7 @@ import sys
 from bitarray import bitarray
 
 # Package information
-VERSION = __version__ = "0.1.2"
+VERSION = __version__ = "1.0.1"
 __FATAL__ = 1
 __ERROR__ = 2
 __WARNING__ = 4
