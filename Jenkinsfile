@@ -15,6 +15,7 @@ pipeline {
         stage('Install-Required-Libs') {
             steps {
                 sh 'virtualenv env'
+                sh 'env/bin/pip3 install .'
                 sh 'env/bin/pip3 install --no-cache-dir -r requirements.txt'
             }
         }
@@ -23,7 +24,7 @@ pipeline {
                 stage('Lint') {
                     steps {
                         title 'Lint'
-                        sh 'env/bin/pylint --output-format=parseable --reports=y pylint_exit_options.py || env/bin/python3 pylint_exit_options.py $?'
+                        sh 'env/bin/pylint --output-format=parseable --reports=y pylint_exit_options.py || env/bin/pylint-exit-options --exit-report=F,E,W,R,C,U $?'
                     }
                 }
             }
