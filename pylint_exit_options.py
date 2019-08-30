@@ -50,7 +50,9 @@ def decode(value):
         >>> decode(3)
         [(1, 'fatal message issued', 1), (2, 'error message issued', 0)]
     """
+
     return [x[1] for x in zip(bitarray(bin(value)[2:])[::-1], EXIT_CODE_DEFAULTS) if x[0]]
+
 
 
 def get_messages(value):
@@ -93,6 +95,7 @@ def get_exit_code(value):
         3
         >>> get_exit_code(12)
         4
+
     """
     exit_codes = [x[2] for x in decode(value)]
     if not exit_codes:
