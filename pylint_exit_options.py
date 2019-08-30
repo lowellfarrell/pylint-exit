@@ -183,9 +183,8 @@ def parse_args():
                         help='pylint return code')
     suppress_exit_code_help = 'You can choose which issue codes are part of the exit code with this option.  ' \
                               'Acceptable values are : F[Fatal], E[Error], W[Warning], R[Refactor], C[Convention],' \
-                              ' U[Usage]. Examples:   "-r=R" will report only Refactor type error codes, "-r=R,C" ' \
-                              'will report only Refactor and Convention type error codes.  By default' \
-                              ' Fatal, Error, Warning and Usage type error codes are reported'
+                              ' U[Usage]. Example:   "-r=R,C" will report only Refactor and Convention type error' \
+                              'codes.  By default Fatal, Error, Warning and Usage type error codes are reported.'
     parser.add_argument('--exit-report', metavar='<F,E,W,R,C,U>', default='F,E,W,U', help=suppress_exit_code_help)
 
     return parser.parse_args()
