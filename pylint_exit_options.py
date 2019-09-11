@@ -24,6 +24,7 @@ __SUPPRESS__ = 0
 
 class BaseHandler(ABC):
     """Base argument handling class"""
+
     def __init__(self, namespace: argparse.Namespace):
         self._handle_cli_arg(namespace)
 
@@ -39,7 +40,7 @@ class ExitCodeMutator(BaseHandler):
         (__FATAL__, 'fatal message issued', __FATAL__),
         (__ERROR__, 'error message issued', __ERROR__),
         (__WARNING__, 'warning message issued', __WARNING__),
-        (__REFACTOR__, 'refactor message issued', __SUPPRESS__),
+        (__REFACTOR__, 're-factor message issued', __SUPPRESS__),
         (__CONVENTION__, 'convention message issued', __SUPPRESS__),
         (__USAGE__, 'usage error', __USAGE__)
     ]
@@ -157,9 +158,6 @@ class ExitCodeMutator(BaseHandler):
                 print("  - %s" % exit_message)
 
             print('')
-            print('Exiting due to issues...')
-        else:
-            print('Exiting gracefully...')
 
         return exit_code
 
@@ -247,6 +245,7 @@ class QualityCheck(BaseHandler):
             int: Return code for quality check <b>64</b> for failure and <b>0</b> for pass
         """
         if value < self.quality_threshold:
+            print('The code quality is below the minimum acceptable level of ' + str(__QUALITY__))
             return __QUALITY__
         return __SUPPRESS__
 
@@ -270,7 +269,7 @@ def parse_args():
 
     quality_gate_help = 'If the final score is less than the threshold which defaults to 0, 64 will be added to' \
                         ' the resulting exitcode.  pylint quality scores are between 0 to 10, 10 being the best.'
-    parser.add_argument('--quality-gate', type=float, metavar='int', default=0, help=quality_gate_help)
+    parser.add_argument('--quality-gate', type=float, metavar='<0.00-10.00>', default=0, help=quality_gate_help)
     suppress_exit_code_help = 'You can choose which issue codes are part of the exit code with this option using' \
                               ' a comma delimited string.  Acceptable values are : F[Fatal], E[Error], W[Warning]' \
                               ', R[Refactor], C[Convention], U[Usage]. Examples:   "-r=R" will report only' \
@@ -292,6 +291,11 @@ def main():
         ex = ExitCodeMutator(args)
         quality = QualityCheck(args)
         exit_code = ex.handle_exit_code(run.linter.msg_status) + quality.check_quality(run.linter.stats['global_note'])
+        if exit_code:
+            print('Exiting due to issues...')
+        else:
+            print('Exiting gracefully...')
+
         sys.exit(exit_code)
 
 
