@@ -24,7 +24,7 @@ pipeline {
                 stage('Lint') {
                     steps {
                         title 'Lint'
-                        sh 'env/bin/pylint --output-format=parseable --reports=y pylint_exit_options.py || env/bin/pylint-exit-options --exit-report=F,E,W,R,C,U $?'
+                        sh 'env/bin/pylint-exit-options --quality-gate=10.00 --exit-report=F,E,W,R,C,U --output-format=parseable --reports=y pylint_exit_options.py'
                     }
                 }
             }
