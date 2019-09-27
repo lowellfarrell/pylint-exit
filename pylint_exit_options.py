@@ -62,7 +62,7 @@ class ExitCodeMutator(BaseHandler):
             >>> self._decode(3)
             [(1, 'fatal message issued', 1), (2, 'error message issued', 0)]
         """
-        return [self.exit_value_defaults(x[1]) for x in zip(bitarray(bin(value)[2:])[::-1], self.exit_value_defaults) if
+        return [self.exit_value_defaults[x[1]] for x in zip(bitarray(bin(value)[2:])[::-1], self.exit_value_defaults) if
                 x[0]]
 
     def _get_messages(self, value: int):
