@@ -36,14 +36,14 @@ class BaseHandler(ABC):
 
 class ExitCodeMutator(BaseHandler):
     """Class for handling pylint exit codes"""
-    exit_value_defaults = [
-        (__FATAL__, 'fatal message issued', __FATAL__),
-        (__ERROR__, 'error message issued', __ERROR__),
-        (__WARNING__, 'warning message issued', __WARNING__),
-        (__REFACTOR__, 're-factor message issued', __SUPPRESS__),
-        (__CONVENTION__, 'convention message issued', __SUPPRESS__),
-        (__USAGE__, 'usage error', __USAGE__)
-    ]
+    exit_value_defaults = {
+        __FATAL__: (__FATAL__, 'fatal message issued', __FATAL__),
+        __ERROR__: (__ERROR__, 'error message issued', __ERROR__),
+        __WARNING__: (__WARNING__, 'warning message issued', __WARNING__),
+        __REFACTOR__: (__REFACTOR__, 're-factor message issued', __SUPPRESS__),
+        __CONVENTION__: (__CONVENTION__, 'convention message issued', __SUPPRESS__),
+        __USAGE__: (__USAGE__, 'usage error', __USAGE__)
+    }
 
     def _decode(self, value: int):
         """Decode the return code value into a bit array.
@@ -62,7 +62,8 @@ class ExitCodeMutator(BaseHandler):
             >>> self._decode(3)
             [(1, 'fatal message issued', 1), (2, 'error message issued', 0)]
         """
-        return [x[1] for x in zip(bitarray(bin(value)[2:])[::-1], self.exit_value_defaults) if x[0]]
+        return [self.exit_value_defaults(x[1]) for x in zip(bitarray(bin(value)[2:])[::-1], self.exit_value_defaults) if
+                x[0]]
 
     def _get_messages(self, value: int):
         """Return a list of raised messages for a given pylint return code.
@@ -201,23 +202,13 @@ class ExitCodeMutator(BaseHandler):
             value (int): new value for level
 
         """
-        positions = {
-            __FATAL__: 0,
-            __ERROR__: 1,
-            __WARNING__: 2,
-            __REFACTOR__: 3,
-            __CONVENTION__: 4,
-            __USAGE__: 5
-        }
-        # fetch the position from the dict
-        position = positions[key]
 
         # unpack the tuple so it can be modified
-        encoded, description, enforce = self.exit_value_defaults[position]
+        encoded, description, enforce = self.exit_value_defaults[key]
         enforce = value  # set the element to True (error)
 
         # repack it back into a tuple to match existing data type
-        self.exit_value_defaults[position] = encoded, description, enforce
+        self.exit_value_defaults[key] = encoded, description, enforce
 
 
 class QualityCheck(BaseHandler):
