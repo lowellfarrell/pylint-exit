@@ -179,30 +179,19 @@ class ExitCodeMutator(BaseHandler):
             arg_values (List): A list of setting passed into the '--exit-report' option which can change which exit
             codes will be returned to cli
         """
-        if 'F' in arg_values:
-            self._apply_enforcement_setting(__FATAL__, __FATAL__)
-        else:
-            self._apply_enforcement_setting(__FATAL__, __SUPPRESS__)
-        if 'E' in arg_values:
-            self._apply_enforcement_setting(__ERROR__, __ERROR__)
-        else:
-            self._apply_enforcement_setting(__ERROR__, __SUPPRESS__)
-        if 'W' in arg_values:
-            self._apply_enforcement_setting(__WARNING__, __WARNING__)
-        else:
-            self._apply_enforcement_setting(__WARNING__, __SUPPRESS__)
-        if 'R' in arg_values:
-            self._apply_enforcement_setting(__REFACTOR__, __REFACTOR__)
-        else:
-            self._apply_enforcement_setting(__REFACTOR__, __SUPPRESS__)
-        if 'C' in arg_values:
-            self._apply_enforcement_setting(__CONVENTION__, __CONVENTION__)
-        else:
-            self._apply_enforcement_setting(__CONVENTION__, __SUPPRESS__)
-        if 'U' in arg_values:
-            self._apply_enforcement_setting(__USAGE__, __USAGE__)
-        else:
-            self._apply_enforcement_setting(__USAGE__, __SUPPRESS__)
+        check = {
+            'F': __FATAL__,
+            'E': __ERROR__,
+            'W': __WARNING__,
+            'R': __REFACTOR__,
+            'C': __CONVENTION__,
+            'U': __USAGE__
+        }
+        for key, value in check.items():
+            if key in arg_values:
+                self._apply_enforcement_setting(value, value)
+            else:
+                self._apply_enforcement_setting(value, __SUPPRESS__)
 
     def _apply_enforcement_setting(self, key: int, value: int):
         """ Apply an enforcement setting
