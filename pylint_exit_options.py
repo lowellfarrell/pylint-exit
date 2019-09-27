@@ -45,7 +45,7 @@ class ExitCodeMutator(BaseHandler):
         (__USAGE__, 'usage error', __USAGE__)
     ]
 
-    def _decode(self, value):
+    def _decode(self, value: int):
         """Decode the return code value into a bit array.
 
         Args:
@@ -64,7 +64,7 @@ class ExitCodeMutator(BaseHandler):
         """
         return [x[1] for x in zip(bitarray(bin(value)[2:])[::-1], self.exit_value_defaults) if x[0]]
 
-    def _get_messages(self, value):
+    def _get_messages(self, value: int):
         """Return a list of raised messages for a given pylint return code.
 
         Args:
@@ -83,7 +83,7 @@ class ExitCodeMutator(BaseHandler):
         """
         return [x[1] for x in self._decode(value)]
 
-    def _get_exit_code(self, value):
+    def _get_exit_code(self, value: int):
         """Return the exist code that should be returned.
 
         Args:
@@ -107,7 +107,7 @@ class ExitCodeMutator(BaseHandler):
             return 0
         return sum(exit_codes)
 
-    def handle_exit_code(self, value):
+    def handle_exit_code(self, value: int) -> int:
         """
         Exit code handler.
 
@@ -204,7 +204,7 @@ class ExitCodeMutator(BaseHandler):
         else:
             self._apply_enforcement_setting(__USAGE__, __SUPPRESS__)
 
-    def _apply_enforcement_setting(self, key, value):
+    def _apply_enforcement_setting(self, key: int, value: int):
         """ Apply an enforcement setting
 
         Args:
@@ -233,19 +233,19 @@ class ExitCodeMutator(BaseHandler):
 
 class QualityCheck(BaseHandler):
     """Class for pylint quality check handling"""
-    quality_threshold = 0
+    quality_threshold = 0  # type: float
 
-    def check_quality(self, value):
+    def check_quality(self, value: float) -> int:
         """ Check the the given quality is above threshold
 
         Args:
-            value(int): Quality value from pylint command line.
+            value(float): Quality value from pylint command line.
 
         Returns:
             int: Return code for quality check <b>64</b> for failure and <b>0</b> for pass
         """
         if value < self.quality_threshold:
-            print('The code quality is below the minimum acceptable level of ' + str(__QUALITY__))
+            print('The code quality is below the minimum acceptable level of ' + str(self.quality_threshold))
             return __QUALITY__
         return __SUPPRESS__
 
