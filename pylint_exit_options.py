@@ -5,6 +5,7 @@ The goal of this script to add a level of customization for exit handling for py
 from __future__ import print_function
 
 import argparse
+import os
 import sys
 from abc import ABC, abstractmethod
 
@@ -45,7 +46,7 @@ class ExitCodeMutator(BaseHandler):
         __USAGE__: (__USAGE__, 'usage error', __USAGE__)
     }
 
-    def _decode(self, value: int):
+    def _decode(self, value: int) -> list:
         """Decode the return code value into a bit array.
 
         Args:
@@ -65,7 +66,7 @@ class ExitCodeMutator(BaseHandler):
         return [self.exit_value_defaults[x[1]] for x in zip(bitarray(bin(value)[2:])[::-1], self.exit_value_defaults) if
                 x[0]]
 
-    def _get_messages(self, value: int):
+    def _get_messages(self, value: int) -> list:
         """Return a list of raised messages for a given pylint return code.
 
         Args:
@@ -122,14 +123,14 @@ class ExitCodeMutator(BaseHandler):
             int: Return code that should be returned when run as a command.
 
         Example:
-            >>> ExitCodeMutator.handle_exit_code(1)
+            >>> self.handle_exit_code(1)
             The following messages were raised:
             <BLANKLINE>
               - fatal message issued
             <BLANKLINE>
             Fatal messages detected.  Failing...
             1
-            >>> ExitCodeMutator.handle_exit_code(12)
+            >>> self.handle_exit_code(12)
             The following messages were raised:
             <BLANKLINE>
               - warning message issued
@@ -142,8 +143,7 @@ class ExitCodeMutator(BaseHandler):
         exit_code = self._get_exit_code(value)
 
         if messages:
-            print('The following types of issues were found:')
-            print('')
+            print('The following types of issues were found:' + os.linesep)
 
             for message in messages:
                 print("  - %s" % message)
@@ -151,8 +151,7 @@ class ExitCodeMutator(BaseHandler):
             print('')
 
         if exit_code:
-            print('The following types of issues are blocking:')
-            print('')
+            print('The following types of issues are blocking:' + os.linesep)
 
             exit_messages = self._get_messages(exit_code)
             for exit_message in exit_messages:
@@ -274,7 +273,7 @@ def main():
         if exit_code:
             print('Exiting due to issues...')
         else:
-            print('Exiting gracefully...')
+            print('No Blocking issues found, Exiting gracefully...')
 
         sys.exit(exit_code)
 
