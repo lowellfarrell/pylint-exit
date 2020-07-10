@@ -48,13 +48,10 @@ class ExitCodeMutator(BaseHandler):
 
     def _decode(self, value: int) -> list:
         """Decode the return code value into a bit array.
-
         Args:
             value(int): Return code from pylint command line.
-
         Returns:
             list of raised exit codes.
-
         Example:
             >>> self._decode(1)
             [(1, 'fatal message issued', 1)]
@@ -68,13 +65,10 @@ class ExitCodeMutator(BaseHandler):
 
     def _get_messages(self, value: int) -> list:
         """Return a list of raised messages for a given pylint return code.
-
         Args:
             value(int): Return code from pylint command line.
-
         Returns:
             list of str: Raised messages.
-
         Example:
             >>> self._get_messages(1)
             ['fatal message issued']
@@ -87,13 +81,10 @@ class ExitCodeMutator(BaseHandler):
 
     def _get_exit_code(self, value: int):
         """Return the exist code that should be returned.
-
         Args:
             value(int): Return code from pylint command line.
-
         Returns:
             int: Return code that should be returned when run as a command.
-
         Example:
             >>> self._get_exit_code(1)
             1
@@ -112,16 +103,12 @@ class ExitCodeMutator(BaseHandler):
     def handle_exit_code(self, value: int) -> int:
         """
         Exit code handler.
-
         Takes a pylint exist code as the input parameter, and
         displays all the relevant console messages.
-
         Args:
             value(int): Return code from pylint command line.
-
         Returns:
             int: Return code that should be returned when run as a command.
-
         Example:
             >>> self.handle_exit_code(1)
             The following messages were raised:
@@ -163,10 +150,8 @@ class ExitCodeMutator(BaseHandler):
 
     def _handle_cli_arg(self, namespace):
         """Applies the CLI flags
-
         Args:
             namespace (argparse.Namespace): namespace from CLI arguments
-
         """
         if namespace.exit_report:
             arg_value_list = namespace.exit_report.split(',')
@@ -174,7 +159,6 @@ class ExitCodeMutator(BaseHandler):
 
     def _set_report_arg_values(self, arg_values: []):
         """ Apply an enforcement setting
-
         Args:
             arg_values (List): A list of setting passed into the '--exit-report' option which can change which exit
             codes will be returned to cli
@@ -195,11 +179,9 @@ class ExitCodeMutator(BaseHandler):
 
     def _apply_enforcement_setting(self, key: int, value: int):
         """ Apply an enforcement setting
-
         Args:
             key (int): specific message level to set
             value (int): new value for level
-
         """
 
         # unpack the tuple so it can be modified
@@ -216,10 +198,8 @@ class QualityCheck(BaseHandler):
 
     def check_quality(self, value: float) -> int:
         """ Check the the given quality is above threshold
-
         Args:
             value(float): Quality value from pylint command line.
-
         Returns:
             int: Return code for quality check <b>64</b> for failure and <b>0</b> for pass
         """
@@ -231,10 +211,8 @@ class QualityCheck(BaseHandler):
     def _handle_cli_arg(self, namespace):
         """
         Applies the CLI flags
-
         Args:
             namespace (argparse.Namespace): namespace from CLI arguments
-
         """
         if namespace.quality_gate:
             self.quality_threshold = namespace.quality_gate
